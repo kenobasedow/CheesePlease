@@ -4,11 +4,15 @@ import com.badlogic.gdx.Application
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.Sprite
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.Animation
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.Array
 import de.basedow.keno.cheeseplease.utils.logger
 
 class CheesePleaseGame : ApplicationAdapter() {
@@ -19,7 +23,7 @@ class CheesePleaseGame : ApplicationAdapter() {
     }
 
     lateinit var mainStage: Stage
-    private lateinit var mousey: BaseActor
+    private lateinit var mousey: AnimatedActor
     private lateinit var cheese: BaseActor
     private lateinit var floor: BaseActor
     private lateinit var winText: BaseActor
@@ -38,11 +42,21 @@ class CheesePleaseGame : ApplicationAdapter() {
 
         cheese = BaseActor()
         cheese.texture = Texture("cheese.png")
+        cheese.setOrigin(Align.center)
         cheese.setPosition(400f, 300f)
         mainStage.addActor(cheese)
 
-        mousey = BaseActor()
-        mousey.texture = Texture("mouse.png")
+        val frames = Array<TextureRegion>(4)
+        for (i in 0 until 4) {
+            val tex = Texture("mouse$i.png")
+            tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+            frames.add(TextureRegion(tex))
+        }
+        val anim = Animation(0.1f, frames, Animation.PlayMode.LOOP_PINGPONG)
+
+        mousey = AnimatedActor()
+        mousey.animation = anim
+        mousey.setOrigin(Align.center)
         mousey.setPosition(20f, 20f)
         mainStage.addActor(mousey)
 
@@ -65,8 +79,30 @@ class CheesePleaseGame : ApplicationAdapter() {
 
         mainStage.act(Gdx.graphics.deltaTime)
 
-        if (cheese.boundingRectangle.contains(mousey.boundingRectangle))
-            winText.isVisible = true
+        if (!win && cheese.boundingRectangle.contains(mousey.boundingRectangle)) {
+            win = true
+
+            val spinShrinkFadeOut = Actions.parallel(
+                    Actions.alpha(1f),
+                    Actions.rotateBy(360f, 1f),
+                    Actions.scaleTo(0f, 0f, 1f),
+                    Actions.fadeOut(1f)
+            )
+            cheese.addAction(spinShrinkFadeOut)
+
+            val fadeInColorCycleForever = Actions.parallel(
+                    Actions.alpha(1f),
+                    Actions.show(),
+                    Actions.fadeIn(2f),
+                    Actions.forever(
+                            Actions.sequence(
+                                    Actions.color(Color(1f, 0f, 0f, 1f), 1f),
+                                    Actions.color(Color(0f, 0f, 1f, 1f), 1f)
+                            )
+                    )
+            )
+            winText.addAction(fadeInColorCycleForever)
+        }
 
         Gdx.gl.glClearColor(0.8f, 0.8f, 1f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
