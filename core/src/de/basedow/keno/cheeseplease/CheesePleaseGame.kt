@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.Label
@@ -23,6 +24,12 @@ class CheesePleaseGame : ApplicationAdapter() {
         @JvmStatic
         private val log = logger<CheesePleaseGame>()
     }
+
+    val mapWidth = 800f
+    val mapHeight = 800f
+
+    val viewWidth = 640f
+    val viewHeight = 480f
 
     private lateinit var mainStage: Stage
     private lateinit var mousey: AnimatedActor
@@ -42,7 +49,7 @@ class CheesePleaseGame : ApplicationAdapter() {
         mainStage = Stage()
 
         floor = BaseActor()
-        floor.texture = Texture("tiles.jpg")
+        floor.texture = Texture("tiles-800-800.jpg")
         floor.setPosition(0f, 0f)
         mainStage.addActor(floor)
 
@@ -100,6 +107,10 @@ class CheesePleaseGame : ApplicationAdapter() {
         mainStage.act(delta)
         uiStage.act(delta)
 
+        mousey.x = MathUtils.clamp(mousey.x, 0f, mapWidth - mousey.width)
+        mousey.y = MathUtils.clamp(mousey.y, (mousey.width - mousey.height) / 2f,
+                mapHeight - mousey.height - (mousey.width - mousey.height) / 2f)
+
         if (!win && cheese.boundingRectangle.contains(mousey.boundingRectangle)) {
             win = true
 
@@ -124,6 +135,12 @@ class CheesePleaseGame : ApplicationAdapter() {
             )
             winText.addAction(fadeInColorCycleForever)
         }
+
+        val cam = mainStage.camera
+        cam.position.x = mousey.x + mousey.originX
+        cam.position.y = mousey.y + mousey.originY
+        cam.position.x = MathUtils.clamp(cam.position.x, viewWidth / 2f, mapWidth - viewWidth / 2f)
+        cam.position.y = MathUtils.clamp(cam.position.y, viewHeight / 2f, mapHeight - viewHeight / 2f)
 
         Gdx.gl.glClearColor(0.8f, 0.8f, 1f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
