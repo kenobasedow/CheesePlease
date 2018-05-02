@@ -8,9 +8,11 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
 import de.basedow.keno.cheeseplease.utils.logger
@@ -22,11 +24,15 @@ class CheesePleaseGame : ApplicationAdapter() {
         private val log = logger<CheesePleaseGame>()
     }
 
-    lateinit var mainStage: Stage
+    private lateinit var mainStage: Stage
     private lateinit var mousey: AnimatedActor
     private lateinit var cheese: BaseActor
     private lateinit var floor: BaseActor
     private lateinit var winText: BaseActor
+
+    private lateinit var uiStage: Stage
+    private var elapsedTime = 0f
+    private lateinit var timeLabel: Label
 
     private var win = false
 
@@ -60,11 +66,18 @@ class CheesePleaseGame : ApplicationAdapter() {
         mousey.setPosition(20f, 20f)
         mainStage.addActor(mousey)
 
+        uiStage = Stage()
+
         winText = BaseActor()
         winText.texture = Texture("you-win.png")
         winText.setPosition(170f, 60f)
         winText.isVisible = false
-        mainStage.addActor(winText)
+        uiStage.addActor(winText)
+
+        timeLabel = Label("Time: 0", Label.LabelStyle(BitmapFont(), Color.NAVY))
+        timeLabel.setFontScale(2f)
+        timeLabel.setPosition(500f, 440f)
+        uiStage.addActor(timeLabel)
     }
 
     override fun render() {
@@ -77,7 +90,15 @@ class CheesePleaseGame : ApplicationAdapter() {
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) mousey.velocityY += 100
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) mousey.velocityY -= 100
 
-        mainStage.act(Gdx.graphics.deltaTime)
+        val delta = Gdx.graphics.deltaTime
+
+        if (!win) {
+            elapsedTime += delta
+            timeLabel.setText("Time: ${elapsedTime.toInt()}")
+        }
+
+        mainStage.act(delta)
+        uiStage.act(delta)
 
         if (!win && cheese.boundingRectangle.contains(mousey.boundingRectangle)) {
             win = true
@@ -108,6 +129,7 @@ class CheesePleaseGame : ApplicationAdapter() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         mainStage.draw()
+        uiStage.draw()
     }
 
     override fun dispose() {
