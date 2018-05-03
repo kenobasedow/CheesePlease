@@ -1,20 +1,13 @@
 package de.basedow.keno.cheeseplease
 
 import com.badlogic.gdx.Game
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
-import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
-import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 
-class CheeseMenu(var game: Game) : Screen {
-
-    private val uiStage = Stage()
+class CheeseMenu(game: Game) : BaseScreen(game) {
 
     init {
         val background = BaseActor()
@@ -41,34 +34,10 @@ class CheeseMenu(var game: Game) : Screen {
         uiStage.addActor(instructions)
     }
 
-    override fun render(delta: Float) {
+    override fun update(delta: Float) {}
 
-        if (Gdx.input.isKeyPressed(Input.Keys.S))
-            game.screen = CheeseLevel(game)
-
-        uiStage.act(delta)
-
-        Gdx.gl.glClearColor(0.8f, 0.8f, 1f, 1f)
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-
-        uiStage.draw()
-    }
-
-    override fun hide() {
-    }
-
-    override fun show() {
-    }
-
-    override fun pause() {
-    }
-
-    override fun resume() {
-    }
-
-    override fun resize(width: Int, height: Int) {
-    }
-
-    override fun dispose() {
+    override fun keyDown(keycode: Int): Boolean {
+        game.screen = CheeseLevel(game)
+        return false
     }
 }

@@ -15,34 +15,22 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
 import de.basedow.keno.cheeseplease.utils.logger
 
-class CheeseLevel(val game: Game) : Screen {
-
-    companion object {
-        @JvmStatic
-        private val log = logger<CheeseLevel>()
-    }
+class CheeseLevel(game: Game) : BaseScreen(game) {
 
     val mapWidth = 800f
     val mapHeight = 800f
 
-    val viewWidth = 640f
-    val viewHeight = 480f
-
-    private val mainStage = Stage()
     private val mousey =  AnimatedActor()
     private val cheese = BaseActor()
     private val floor = BaseActor()
     private val winText = BaseActor()
 
-    private val uiStage = Stage()
     private var elapsedTime = 0f
     private val timeLabel: Label
 
     private var win = false
 
-   init {
-        Gdx.app.logLevel = Application.LOG_DEBUG
-
+    init {
         floor.texture = Texture("tiles-800-800.jpg")
         floor.setPosition(0f, 0f)
         mainStage.addActor(floor)
@@ -76,7 +64,7 @@ class CheeseLevel(val game: Game) : Screen {
         uiStage.addActor(timeLabel)
     }
 
-    override fun render(delta: Float) {
+    override fun update(delta: Float) {
 
         mousey.velocityX = 0f
         mousey.velocityY = 0f
@@ -85,14 +73,6 @@ class CheeseLevel(val game: Game) : Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) mousey.velocityX += 100
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) mousey.velocityY += 100
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) mousey.velocityY -= 100
-
-        if (!win) {
-            elapsedTime += delta
-            timeLabel.setText("Time: ${elapsedTime.toInt()}")
-        }
-
-        mainStage.act(delta)
-        uiStage.act(delta)
 
         mousey.x = MathUtils.clamp(mousey.x, 0f, mapWidth - mousey.width)
         mousey.y = MathUtils.clamp(mousey.y, (mousey.width - mousey.height) / 2f,
@@ -123,36 +103,24 @@ class CheeseLevel(val game: Game) : Screen {
             winText.addAction(fadeInColorCycleForever)
         }
 
+        if (!win) {
+            elapsedTime += delta
+            timeLabel.setText("Time: ${elapsedTime.toInt()}")
+        }
+
         val cam = mainStage.camera
         cam.position.x = mousey.x + mousey.originX
         cam.position.y = mousey.y + mousey.originY
         cam.position.x = MathUtils.clamp(cam.position.x, viewWidth / 2f, mapWidth - viewWidth / 2f)
         cam.position.y = MathUtils.clamp(cam.position.y, viewHeight / 2f, mapHeight - viewHeight / 2f)
-
-        Gdx.gl.glClearColor(0.8f, 0.8f, 1f, 1f)
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-
-        mainStage.draw()
-        uiStage.draw()
+        cam.update()
     }
 
-    override fun hide() {
-    }
-
-    override fun show() {
-    }
-
-    override fun pause() {
-    }
-
-    override fun resume() {
-    }
-
-    override fun resize(width: Int, height: Int) {
-    }
-
-    override fun dispose() {
-        mainStage.dispose()
-        uiStage.dispose()
+    override fun keyDown(keycode: Int): Boolean {
+        when (keycode) {
+            Input.Keys.M -> game.screen = CheeseMenu(game)
+            Input.Keys.P -> togglePaused()
+        }
+        return false
     }
 }
