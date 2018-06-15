@@ -1,19 +1,18 @@
 package de.basedow.keno.cheeseplease
 
-import com.badlogic.gdx.*
+import com.badlogic.gdx.Game
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
-import de.basedow.keno.cheeseplease.utils.logger
 
 class CheeseLevel(game: Game) : BaseScreen(game) {
 
@@ -90,7 +89,7 @@ class CheeseLevel(game: Game) : BaseScreen(game) {
             cheese.addAction(spinShrinkFadeOut)
 
             val fadeInColorCycleForever = Actions.parallel(
-                    Actions.alpha(1f),
+                    Actions.alpha(0f),
                     Actions.show(),
                     Actions.fadeIn(2f),
                     Actions.forever(
