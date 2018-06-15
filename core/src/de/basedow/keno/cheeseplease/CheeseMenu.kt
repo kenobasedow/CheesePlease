@@ -1,6 +1,7 @@
 package de.basedow.keno.cheeseplease
 
 import com.badlogic.gdx.Game
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
@@ -37,7 +38,8 @@ class CheeseMenu(game: Game) : BaseScreen(game) {
     override fun update(delta: Float) {}
 
     override fun keyDown(keycode: Int): Boolean {
-        game.screen = CheeseLevel(game)
+        if (keycode == Input.Keys.S)
+            game.screen = CheeseLevel(game)
         return false
     }
 }
